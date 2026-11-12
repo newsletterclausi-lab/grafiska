@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Grafsika">
+<meta name="theme-color" content="#000000">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAEXklEQVR4nOzdS2hUZxiH8TftmLSdmrslmNJao8FIojKR0EW1LVjbYheWUkpFUEREvIAbJSCILgTBhYorieAFERFUXHhF8YKC9xhvCcaYeIuJJtGJEU2CiQdEF+I/ROdE1Pf5cTYznNnMefjmfGfOx4lEo1ED3uQzAwTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckCKWsLtrt1rf21b4yPrenzUbre/FC1ZY34vFYpYYRg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFACmFR00ft3q3G8oOnq05XPmhsedQcX9DV+U1Gcm72F2NGZP46KnNIbtQc8xtHQ139tpVbKk9cfu39uoanwXb80sNlm6+PHZGxcHKe20Q8xtEWb9tdtvPYjsNdz7p63vPohQfHS89M/i137t/fZfRPNmfcxdHS2Lx+Udn1iupe7h/0s2HfnaqbbavmDB+Q7qsPXyekHU871i1c0/syXjlZGZ+96vKT9mfmia84Ni5ZW3upxt7J2aut89dUmSeO4qg4cu78obOWgD0nm/afuW9uOIpjV9lOS9jq7Te6u7vNBy9x1F6sqb922xJ25cbj89dazQcvcQS/KRaSYH5rPniZyt6uvmUhKa+Omw9e4mhtDu2I3o93mA9e4mhpaLaQ3GlqNx+8xNHZ3ml4S15OSFOz0iwkA9K8XET3E0eqhcTPPyxe4vihMM9CUvD91+aDlziKx5VYSP4Zm2M+uBk5ivIGjxxqCYsNTR3OyPHp+WvGREtY6aTB5oajOPKLh/3y3zhLwNQ/covzQ5v1fPh83c8xcc6/Q0bl2zspGZZW+r+jYcO8xRHpF5m2dGb/jLee1g7MSl49t6BfxNfX5W7dSnA1bPH2ZQU/Fvb+I2OK0vctL8lOTzFnPN59nvJlyqwV8y4cLT+waW/txZ7uGgzmJtMnfDt+dHZSUpL543TdSnCwR/4cC7aGuvqKI+VVp648vNfS2hT//OWipp+KMsePzhqU85U55n3FW86ggcH2+5QJL16+n8d4fSxYKwuJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5ISdGo6ydVoQeMHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQHoOAAD//399oS0AAAAGSURBVAMAADDLNwK6JXQAAAAASUVORK5CYII=">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAEXklEQVR4nOzdS2hUZxiH8TftmLSdmrslmNJao8FIojKR0EW1LVjbYheWUkpFUEREvIAbJSCILgTBhYorieAFERFUXHhF8YKC9xhvCcaYeIuJJtGJEU2CiQdEF+I/ROdE1Pf5cTYznNnMefjmfGfOx4lEo1ED3uQzAwTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckCKWsLtrt1rf21b4yPrenzUbre/FC1ZY34vFYpYYRg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFACmFR00ft3q3G8oOnq05XPmhsedQcX9DV+U1Gcm72F2NGZP46KnNIbtQc8xtHQ139tpVbKk9cfu39uoanwXb80sNlm6+PHZGxcHKe20Q8xtEWb9tdtvPYjsNdz7p63vPohQfHS89M/i137t/fZfRPNmfcxdHS2Lx+Udn1iupe7h/0s2HfnaqbbavmDB+Q7qsPXyekHU871i1c0/syXjlZGZ+96vKT9mfmia84Ni5ZW3upxt7J2aut89dUmSeO4qg4cu78obOWgD0nm/afuW9uOIpjV9lOS9jq7Te6u7vNBy9x1F6sqb922xJ25cbj89dazQcvcQS/KRaSYH5rPniZyt6uvmUhKa+Omw9e4mhtDu2I3o93mA9e4mhpaLaQ3GlqNx+8xNHZ3ml4S15OSFOz0iwkA9K8XET3E0eqhcTPPyxe4vihMM9CUvD91+aDlziKx5VYSP4Zm2M+uBk5ivIGjxxqCYsNTR3OyPHp+WvGREtY6aTB5oajOPKLh/3y3zhLwNQ/covzQ5v1fPh83c8xcc6/Q0bl2zspGZZW+r+jYcO8xRHpF5m2dGb/jLee1g7MSl49t6BfxNfX5W7dSnA1bPH2ZQU/Fvb+I2OK0vctL8lOTzFnPN59nvJlyqwV8y4cLT+waW/txZ7uGgzmJtMnfDt+dHZSUpL543TdSnCwR/4cC7aGuvqKI+VVp648vNfS2hT//OWipp+KMsePzhqU85U55n3FW86ggcH2+5QJL16+n8d4fSxYKwuJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5IxAGJOCARByTigEQckIgDEnFAIg5ISdGo6ydVoQeMHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQCIOSMQBiTggEQck4oBEHJCIAxJxQHoOAAD//399oS0AAAAGSURBVAMAADDLNwK6JXQAAAAASUVORK5CYII=">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; worker-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>Grafsika</title>
+<style>
+:root{--bg:#000;--fg:#f2ede4;--dim:rgba(242,237,228,.5);--line:rgba(242,237,228,.16);--accent:#e8b04a;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--bg);color:var(--fg);font:13px/1.2 -apple-system,"SF Pro Text",system-ui,sans-serif;
+  overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+video{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+
+/* stage = the area the film frame fits into */
+#stage{position:fixed;left:var(--sl);right:var(--sr);top:calc(var(--st) + 52px);bottom:calc(var(--sb) + 228px);
+  display:flex;align-items:center;justify-content:center}
+#frame{position:relative;background:#0a0a0a;touch-action:pan-y}
+#cv{display:block;width:100%;height:100%}
+#guides{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;transition:opacity .2s}
+#guides line,#guides rect{stroke:rgba(255,255,255,.4);stroke-width:1;fill:none;vector-effect:non-scaling-stroke}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#flash.on{animation:fl .35s ease-out}
+@keyframes fl{0%{opacity:.85}100%{opacity:0}}
+
+/* top bar */
+#top{position:fixed;top:0;left:0;right:0;min-width:0;padding:calc(var(--st) + 10px) calc(var(--sr) + 14px) 0 calc(var(--sl) + 14px);
+  height:calc(var(--st) + 52px);display:flex;align-items:center;justify-content:space-between;gap:10px}
+#brand{letter-spacing:.26em;white-space:nowrap;font-size:11px;font-weight:600}
+#ratio{color:var(--accent);font:600 11px/1 ui-monospace,"SF Mono",monospace;letter-spacing:.08em;margin-left:10px}
+#hint{color:var(--dim);font-size:11px;margin-left:10px;white-space:nowrap}
+.icon{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line)}
+.icon svg{width:18px;height:18px;stroke:var(--fg);fill:none;stroke-width:1.6}
+.icon.off{opacity:.4}
+#bFmt{width:auto;min-width:38px;padding:0 11px;border-radius:19px;font:600 10px/1 ui-monospace,"SF Mono",monospace;letter-spacing:.08em}
+#tools{display:flex;gap:8px}
+
+/* bottom controls */
+#ctl{position:fixed;left:0;right:0;bottom:0;padding:0 calc(var(--sr) + 14px) calc(var(--sb) + 14px) calc(var(--sl) + 14px);
+  display:flex;flex-direction:column;gap:12px}
+#looks{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.look{border:1px solid var(--line);border-radius:12px;padding:9px 2px 8px;min-width:0;text-align:center;transition:border-color .15s,background .15s}
+.look b{display:block;font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis}
+.look span{display:block;font-size:10px;color:var(--dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.look .dot{width:6px;height:6px;border-radius:50%;margin:0 auto 6px;background:var(--c)}
+.look.on{border-color:var(--c);background:rgba(255,255,255,.06)}
+.srow{display:flex;align-items:center;gap:10px;color:var(--dim);font-size:11px}
+#amt,#grn{flex:1;min-width:0;width:100%;-webkit-appearance:none;appearance:none;height:2px;background:var(--line);border-radius:2px;outline:none}
+#amt::-webkit-slider-thumb,#grn::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--fg);border:0}
+.srow span:first-child{width:52px}
+#amtv,#grnv{width:32px;text-align:right;font-family:ui-monospace,"SF Mono",monospace}
+#row{display:flex;align-items:center;justify-content:space-between}
+#thumb{flex:none;width:52px;height:52px;border-radius:10px;border:1px solid var(--line);background:#111 center/cover no-repeat;position:relative}
+#thumb:empty::after{content:"";}
+#thumb i{position:absolute;right:-6px;top:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:#000;
+  font:600 10px/18px -apple-system,system-ui;font-style:normal;display:none}
+#shutter{flex:none;width:74px;height:74px;border-radius:50%;border:3px solid var(--fg);display:grid;place-items:center}
+#shutter::after{content:"";width:58px;height:58px;border-radius:50%;background:var(--fg);transition:transform .1s}
+#shutter:active::after{transform:scale(.88)}
+#imp{flex:none;width:52px;height:52px;border-radius:10px}
+
+#msg{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:32px;text-align:center;
+  background:rgba(0,0,0,.85);z-index:5;flex-direction:column;gap:16px;font-size:14px;line-height:1.45}
+#msg.on{display:flex}
+#msg button{border:1px solid var(--fg);border-radius:22px;padding:10px 20px}
+
+/* landscape: controls move to a right-hand column */
+@media (orientation:landscape){
+  #stage{top:calc(var(--st) + 44px);bottom:calc(var(--sb) + 8px);right:calc(var(--sr) + 172px)}
+  #top{right:calc(var(--sr) + 172px);height:calc(var(--st) + 44px);padding-top:calc(var(--st) + 6px)}
+  #ctl{left:auto;top:0;width:calc(var(--sr) + 172px);padding:calc(var(--st) + 10px) calc(var(--sr) + 12px) calc(var(--sb) + 10px) 6px;
+    justify-content:center;gap:10px}
+  #looks{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .look:last-child{grid-column:span 2}
+  .look{padding:7px 4px 6px}
+  #hint{display:none}
+  #thumb,#imp{width:42px;height:42px}#shutter{width:64px;height:64px}#shutter::after{width:50px;height:50px}
+}
+</style>
+</head>
+<body>
+<video id="vid" playsinline muted autoplay></video>
+
+<header id="top">
+  <div style="display:flex;align-items:baseline;min-width:0">
+    <span id="brand">GRAFSIKA</span><span id="ratio">2.39:1</span><span id="hint">↻ rotate</span>
+  </div>
+  <div id="tools">
+    <button class="icon" id="bFmt" aria-label="Photo format">FILM</button>
+    <button class="icon" id="bGuide" aria-label="Framing guides"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1"/><path d="M12 5v14M3 12h18"/></svg></button>
+    <button class="icon" id="bFlip" aria-label="Switch camera"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><path d="M9.5 13.5a2.6 2.6 0 0 0 5 .5M14.5 12.5a2.6 2.6 0 0 0-5-.5"/></svg></button>
+  </div>
+</header>
+
+<main id="stage">
+  <div id="frame">
+    <canvas id="cv"></canvas>
+    <svg id="guides" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+    <div id="flash"></div>
+  </div>
+</main>
+
+<section id="ctl">
+  <div id="looks"></div>
+  <div class="srow"><span>Strength</span><input id="amt" type="range" min="0" max="100" value="100"><span id="amtv">100</span></div>
+  <div class="srow"><span>Grain</span><input id="grn" type="range" min="0" max="300" value="100"><span id="grnv">100</span></div>
+  <div id="row">
+    <button id="thumb" aria-label="Save last shot"><i id="count"></i></button>
+    <button id="shutter" aria-label="Take photo"></button>
+    <button class="icon" id="imp" aria-label="Grade a photo from library"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="16" cy="9" r="1.6"/></svg></button>
+  </div>
+</section>
+
+<input type="file" id="file" accept="image/*" hidden>
+<div id="msg"><p id="msgt"></p><button id="msgb">Grade a photo instead</button></div>
+
+<script>
+const LOOKS = [
+  {name:'Pastel',   sub:'soft & pink', ratio:1.37, label:'1.37:1', guide:'center', c:'#f2a7b5'},
+  {name:'Video',    sub:'sharp & bright',  ratio:16/9, label:'16:9',   guide:'thirds', c:'#9fd3a8'},
+  {name:'Cinema',   sub:'teal & glow',     ratio:2.39, label:'2.39:1', guide:'thirds', c:'#e8b04a'},
+  {name:'Mono',     sub:'b/w grain',       ratio:2.35, label:'2.35:1', guide:'thirds', c:'#d9d9d9'},
+  {name:'Gold',     sub:'warm film',       ratio:1.5,  label:'3:2',    guide:'thirds', c:'#f5c542'},
+];
+const MAX_SIDE = 3000;
+
+const FRAG = `
+precision highp float;
+varying vec2 v_uv;
+uniform sampler2D u_tex;
+uniform vec2 u_off, u_scale, u_res;
+uniform float u_time, u_amt, u_mirror, u_grain;
+uniform int u_look;
+
+vec3 tex(vec2 uv){ uv = clamp(uv,0.0,1.0); uv.x = mix(uv.x,1.0-uv.x,u_mirror); return texture2D(u_tex,u_off+uv*u_scale).rgb; }
+float luma(vec3 c){ return dot(c,vec3(0.2126,0.7152,0.0722)); }
+vec3 satur(vec3 c,float s){ return mix(vec3(luma(c)),c,s); }
+float hash(vec2 p){ vec3 p3=fract(vec3(p.xyx)*0.1031); p3+=dot(p3,p3.yzx+33.33); return fract((p3.x+p3.y)*p3.z); }
+float grain(vec2 px,float size){ vec2 p=floor(px/size); float t=floor(u_time*24.0); return hash(p+t*17.13)+hash(p*1.7+t*3.1+11.0)-1.0; }
+float vign(vec2 uv,float k){ return 1.0-k*smoothstep(0.35,1.05,length(uv-0.5)*1.414); }
+
+// Pastel: soft contrast, lifted creamy blacks, greens drift to mint/mustard, pink highlights
+vec3 pastel(vec3 c){
+  c = (c-0.5)*0.86+0.5;
+  c = mix(vec3(0.08,0.06,0.08), vec3(0.98,0.95,0.90), c);
+  float g = clamp(c.g-max(c.r,c.b),0.0,1.0);
+  c.r += g*0.7;
+  c *= vec3(1.05,0.99,0.92);
+  c = satur(c,1.3);
+  c += vec3(0.05,0.0,0.035)*smoothstep(0.5,1.0,luma(c));
+  return c;
+}
+// Video: consumer camcorder look — hard sharpening, hot auto-exposure, fluorescent green, clipped whites
+vec3 video(vec3 c,vec2 uv){
+  vec2 px = 1.0/u_res;
+  vec3 b = (tex(uv+vec2(px.x,0.0))+tex(uv-vec2(px.x,0.0))+tex(uv+vec2(0.0,px.y))+tex(uv-vec2(0.0,px.y)))*0.25;
+  c = c+(c-b)*0.8;
+  c = c*1.1+0.02;
+  c *= vec3(0.96,1.02,0.97);
+  c = satur(c,0.9);
+  return pow(clamp(c,0.0,1.0),vec3(0.95));
+}
+// Cinema: desaturated large-format film, teal shadows, dusty warm highlights, red halation
+vec3 cinema(vec3 c,vec2 uv){
+  vec3 h = vec3(0.0);
+  for(int i=0;i<8;i++){
+    float a = float(i)*0.7854;
+    vec2 o = vec2(cos(a),sin(a))*0.006*vec2(u_res.y/u_res.x,1.0);
+    h += max(tex(uv+o)-0.72,0.0);
+  }
+  h /= 8.0;
+  c = satur(c,0.6);
+  c *= mix(vec3(0.90,0.99,1.04),vec3(1.08,1.0,0.84),smoothstep(0.08,0.75,luma(c)));
+  c = clamp(c,0.0,1.0);
+  c = c*c*(3.0-2.0*c)*0.35+c*0.65;
+  c = mix(vec3(0.035,0.035,0.04),vec3(0.96,0.93,0.86),c);
+  return c + h*vec3(1.0,0.42,0.18)*1.6;
+}
+// Mono: red-filter black & white, crushed blacks, heavy grain
+vec3 mono(vec3 c){
+  float l = dot(c,vec3(0.55,0.38,0.07));
+  l = pow(smoothstep(0.06,0.88,l),1.2);
+  return vec3(l)*vec3(1.0,0.99,0.97);
+}
+
+// Gold: warm golden balance, punchy reds/yellows, warm lifted blacks, soft highlight shoulder, blues lean cyan
+vec3 gold(vec3 c){
+  c *= vec3(1.07,1.0,0.84);
+  c = clamp(c,0.0,1.0);
+  c = mix(c, c*c*(3.0-2.0*c), 0.4);
+  c = mix(vec3(0.05,0.035,0.02), vec3(0.985,0.955,0.87), c);
+  c = satur(c,1.2);
+  c += vec3(0.045,0.022,-0.03)*smoothstep(0.35,0.95,luma(c));
+  float b = clamp(c.b-max(c.r,c.g),0.0,1.0);
+  c.g += b*0.18;
+  c.r += clamp(c.r-c.g,0.0,1.0)*0.08;
+  return c;
+}
+
+void main(){
+  vec2 uv = v_uv;
+  vec3 src = tex(uv), c;
+  float gk, gs, vk;
+  if(u_look==0){ c=pastel(src); gk=0.018; gs=1.0; vk=0.0; }
+  else if(u_look==1){ c=video(src,uv); gk=0.03; gs=1.0; vk=0.06; }
+  else if(u_look==2){ c=cinema(src,uv); gk=0.055; gs=1.4; vk=0.3; }
+  else if(u_look==3){ c=mono(src); gk=0.10; gs=1.8; vk=0.5; }
+  else { c=gold(src); gk=0.045; gs=1.3; vk=0.2; }
+  float l = luma(c);
+  c += grain(gl_FragCoord.xy, gs*max(1.0,u_res.y/1000.0))*gk*u_grain*(0.35+0.65*(1.0-abs(l*2.0-1.0)));
+  c *= vign(uv,vk);
+  gl_FragColor = vec4(clamp(mix(src,c,u_amt),0.0,1.0),1.0);
+}`;
+const VERT = `attribute vec2 p; varying vec2 v_uv; void main(){ v_uv=p*0.5+0.5; gl_Position=vec4(p,0.0,1.0); }`;
+
+const $ = s => document.querySelector(s);
+const vid=$('#vid'), cv=$('#cv'), frame=$('#frame'), stage=$('#stage');
+const store = { get(k){ try{return localStorage.getItem(k)}catch(e){return null} }, set(k,v){ try{localStorage.setItem(k,v)}catch(e){} } };
+
+const S = {
+  look: Math.min(LOOKS.length-1, Math.max(0, +(new URLSearchParams(location.search).get('look') ?? store.get('cg.look') ?? 2) || 0)),
+  amt: 1, grain: +(store.get('cg.grain') ?? 100)/100, fmt: store.get('cg.fmt')==='ip' ? 'ip' : 'film', guides: store.get('cg.guides') !== '0', facing: 'environment',
+  src: 'cam', img: null, imgDirty: false, stream: null, shots: [],
+};
+
+/* ---------- WebGL ---------- */
+const gl = cv.getContext('webgl', {preserveDrawingBuffer:true, antialias:false, premultipliedAlpha:false});
+function sh(type, src){ const s=gl.createShader(type); gl.shaderSource(s,src); gl.compileShader(s);
+  if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; }
+const prog = gl.createProgram();
+gl.attachShader(prog, sh(gl.VERTEX_SHADER, VERT)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
+gl.linkProgram(prog); gl.useProgram(prog);
+gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+const ap = gl.getAttribLocation(prog,'p'); gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
+const U = {}; ['u_off','u_scale','u_res','u_time','u_amt','u_mirror','u_look','u_grain'].forEach(n => U[n]=gl.getUniformLocation(prog,n));
+gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+[[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]]
+  .forEach(([k,v]) => gl.texParameteri(gl.TEXTURE_2D,k,v));
+
+function srcSize(){
+  if(S.src==='img' && S.img) return [S.img.width, S.img.height];
+  return vid.readyState >= 2 && vid.videoWidth ? [vid.videoWidth, vid.videoHeight] : null;
+}
+
+/* crop the source to the look's aspect (centre cut) and size the canvas buffer to that crop */
+function geometry(){
+  const ss = srcSize(); if(!ss) return null;
+  const [sw,sh_] = ss, A = ratio();
+  let cw = sw, ch = sw/A; if(ch > sh_){ ch = sh_; cw = sh_*A; }
+  const k = Math.min(1, MAX_SIDE/Math.max(cw,ch));
+  const W = Math.round(cw*k), H = Math.round(ch*k);
+  if(cv.width!==W || cv.height!==H){ cv.width=W; cv.height=H; }
+  return {off:[(sw-cw)/2/sw, (sh_-ch)/2/sh_], scale:[cw/sw, ch/sh_]};
+}
+
+function draw(t){
+  const g = geometry(); if(!g) return false;
+  if(S.src==='cam') gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,vid);
+  else if(S.imgDirty){ gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,S.img); S.imgDirty=false; }
+  gl.viewport(0,0,cv.width,cv.height);
+  gl.uniform2fv(U.u_off,g.off); gl.uniform2fv(U.u_scale,g.scale); gl.uniform2f(U.u_res,cv.width,cv.height);
+  gl.uniform1f(U.u_time,(t||performance.now())/1000); gl.uniform1f(U.u_amt,S.amt); gl.uniform1f(U.u_grain,S.grain);
+  gl.uniform1f(U.u_mirror, S.src==='cam' && S.facing==='user' ? 1 : 0); gl.uniform1i(U.u_look,S.look);
+  gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+  return true;
+}
+let lastA = 0;
+(function loop(t){ draw(t); if(ratio()!==lastA) layout(); requestAnimationFrame(loop); })();
+
+/* ---------- layout ---------- */
+// FILM = the look's cinema ratio; IPHONE = 4:3 like the native camera, flipped to 3:4 when the source is portrait
+function ratio(){
+  if(S.fmt==='ip'){ const ss = srcSize(); return ss && ss[0] < ss[1] ? 3/4 : 4/3; }
+  return LOOKS[S.look].ratio;
+}
+function layout(){
+  const A = lastA = ratio(), bw = stage.clientWidth, bh = stage.clientHeight;
+  let w = bw, h = bw/A; if(h > bh){ h = bh; w = bh*A; }
+  frame.style.width = w+'px'; frame.style.height = h+'px';
+  $('#hint').style.display = (S.src==='cam' && S.fmt==='film' && innerHeight > innerWidth) ? '' : 'none';
+  $('#ratio').textContent = S.fmt==='ip' ? (A < 1 ? '3:4' : '4:3') : LOOKS[S.look].label;
+  $('#bFmt').textContent = S.fmt==='ip' ? 'IPHONE' : 'FILM';
+}
+addEventListener('resize', layout);
+addEventListener('orientationchange', () => setTimeout(layout, 300));
+
+function setGuides(){
+  const g = $('#guides');
+  g.innerHTML = LOOKS[S.look].guide==='center'
+    ? '<line x1="50" y1="0" x2="50" y2="100"/><line x1="0" y1="50" x2="100" y2="50"/><rect x="38" y="34" width="24" height="32"/>'
+    : '<line x1="33.33" y1="0" x2="33.33" y2="100"/><line x1="66.67" y1="0" x2="66.67" y2="100"/><line x1="0" y1="33.33" x2="100" y2="33.33"/><line x1="0" y1="66.67" x2="100" y2="66.67"/>';
+  g.style.opacity = S.guides ? 1 : 0;
+  $('#bGuide').classList.toggle('off', !S.guides);
+}
+
+/* ---------- looks UI ---------- */
+const looksEl = $('#looks');
+LOOKS.forEach((L,i) => {
+  const b = document.createElement('button'); b.className='look'; b.style.setProperty('--c',L.c);
+  b.innerHTML = `<div class="dot"></div><b>${L.name}</b><span>${L.sub}</span>`;
+  b.onclick = () => setLook(i); looksEl.appendChild(b);
+});
+function setLook(i){
+  S.look = (i+LOOKS.length)%LOOKS.length; store.set('cg.look',S.look);
+  [...looksEl.children].forEach((b,j) => b.classList.toggle('on', j===S.look));
+  document.documentElement.style.setProperty('--accent', LOOKS[S.look].c);
+  setGuides(); layout();
+}
+// swipe across the frame to change look
+let sx = null;
+frame.addEventListener('pointerdown', e => sx = e.clientX);
+frame.addEventListener('pointerup', e => { if(sx!==null && Math.abs(e.clientX-sx) > 50) setLook(S.look + (e.clientX < sx ? 1 : -1)); sx = null; });
+
+$('#amt').oninput = e => { S.amt = e.target.value/100; $('#amtv').textContent = e.target.value; };
+$('#grn').value = Math.round(S.grain*100); $('#grnv').textContent = $('#grn').value;
+$('#grn').oninput = e => { S.grain = e.target.value/100; $('#grnv').textContent = e.target.value; store.set('cg.grain', e.target.value); };
+$('#bFmt').onclick = () => { S.fmt = S.fmt==='film' ? 'ip' : 'film'; store.set('cg.fmt', S.fmt); layout(); };
+$('#bGuide').onclick = () => { S.guides = !S.guides; store.set('cg.guides', S.guides?'1':'0'); setGuides(); };
+
+/* ---------- camera ---------- */
+function showMsg(t){ $('#msgt').textContent = t; $('#msg').classList.add('on'); }
+async function startCam(){
+  S.src = 'cam'; updateFlipIcon(); layout();
+  if(S.stream) S.stream.getTracks().forEach(t => t.stop());
+  if(!navigator.mediaDevices?.getUserMedia){ showMsg('No camera access here. On iPhone the camera only works when the page is served over HTTPS.'); return; }
+  try{
+    S.stream = await navigator.mediaDevices.getUserMedia({audio:false, video:{facingMode:{ideal:S.facing}, width:{ideal:1920}, height:{ideal:1080}}});
+    vid.srcObject = S.stream; await vid.play();
+    $('#msg').classList.remove('on');
+  }catch(e){ showMsg('Camera blocked (' + e.name + '). Allow camera access in Settings → Safari, or grade a photo from your library.'); }
+}
+vid.addEventListener('loadedmetadata', layout);
+function updateFlipIcon(){
+  $('#bFlip').setAttribute('aria-label', S.src==='img' ? 'Back to live camera' : 'Switch camera');
+  $('#bFlip').innerHTML = S.src==='img'
+    ? '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="#e04a3a" stroke="none"/><circle cx="12" cy="12" r="8"/></svg>'
+    : '<svg viewBox="0 0 24 24"><path d="M4 8h3l2-2h6l2 2h3v11H4z"/><path d="M9.5 13.5a2.6 2.6 0 0 0 5 .5M14.5 12.5a2.6 2.6 0 0 0-5-.5"/></svg>';
+}
+$('#bFlip').onclick = () => { if(S.src==='cam') S.facing = S.facing==='environment' ? 'user' : 'environment'; startCam(); };
+
+/* ---------- import a photo (draw via 2D canvas so EXIF rotation is applied, and scale to cap) ---------- */
+function loadImage(url){
+  return new Promise((res,rej) => { const im = new Image(); im.onload = () => {
+    const k = Math.min(1, MAX_SIDE*1.2/Math.max(im.naturalWidth, im.naturalHeight));
+    const c = document.createElement('canvas'); c.width = Math.round(im.naturalWidth*k); c.height = Math.round(im.naturalHeight*k);
+    c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+    S.img = c; S.imgDirty = true; S.src = 'img';
+    if(S.stream){ S.stream.getTracks().forEach(t => t.stop()); S.stream = null; }
+    $('#msg').classList.remove('on'); updateFlipIcon(); layout(); res();
+  }; im.onerror = rej; im.src = url; });
+}
+$('#imp').onclick = $('#msgb').onclick = () => $('#file').click();
+$('#file').onchange = e => { const f = e.target.files[0]; if(f) loadImage(URL.createObjectURL(f)); e.target.value=''; };
+
+/* ---------- capture + save ---------- */
+function stamp(){ const d=new Date(), p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`; }
+$('#shutter').onclick = () => {
+  if(!draw()) return;
+  $('#flash').classList.remove('on'); void $('#flash').offsetWidth; $('#flash').classList.add('on');
+  const name = `grafsika-${LOOKS[S.look].name.toLowerCase()}-${stamp()}.jpg`;
+  cv.toBlob(b => {
+    S.shots.push(new File([b], name, {type:'image/jpeg'}));
+    $('#thumb').style.backgroundImage = `url(${URL.createObjectURL(b)})`;
+    const c = $('#count'); c.textContent = S.shots.length; c.style.display = 'block';
+  }, 'image/jpeg', 0.92);
+};
+// tap the thumbnail → iOS share sheet ("Save Image" puts it in Photos). Shares every shot not yet saved.
+$('#thumb').onclick = async () => {
+  if(!S.shots.length) return;
+  const files = S.shots.slice();
+  if(navigator.canShare?.({files})){
+    try{ await navigator.share({files}); S.shots = []; $('#count').style.display='none'; }catch(e){}
+  }else{
+    files.forEach(f => { const a=document.createElement('a'); a.href=URL.createObjectURL(f); a.download=f.name; a.click(); });
+    S.shots = []; $('#count').style.display='none';
+  }
+};
+
+// offline: once loaded over HTTPS, the app is cached on the phone (sw.js sits next to index.html)
+if('serviceWorker' in navigator && location.protocol==='https:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+window.__cg = { loadImage, setLook, S };
+setLook(S.look);
+new URLSearchParams(location.search).has('img') ? loadImage(new URLSearchParams(location.search).get('img')) : startCam();
+</script>
+</body>
+</html>
