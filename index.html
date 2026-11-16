@@ -193,18 +193,73 @@ vec3 mono(vec3 c){
   return vec3(l)*vec3(1.0,0.99,0.97);
 }
 
-// Gold: warm golden balance, punchy reds/yellows, warm lifted blacks, soft highlight shoulder, blues lean cyan
-vec3 gold(vec3 c){
-  c *= vec3(1.07,1.0,0.84);
+// Gold: consumer colour negative. Warmth lives in mids/highlights, shadows stay neutral-cool,
+// each hue band is pushed separately so reds, yellows, greens and skies stay apart.
+vec3 rgb2hsv(vec3 c){
+  vec4 K = vec4(0.0,-1.0/3.0,2.0/3.0,-1.0);
+  vec4 p = mix(vec4(c.bg,K.wz), vec4(c.gb,K.xy), step(c.b,c.g));
+  vec4 q = mix(vec4(p.xyw,c.r), vec4(c.r,p.yzx), step(p.x,c.r));
+  float d = q.x-min(q.w,q.y);
+  return vec3(abs(q.z+(q.w-q.y)/(6.0*d+1e-5)), d/(q.x+1e-5), q.x);
+}
+vec3 hsv2rgb(vec3 c){ vec3 p = abs(fract(c.xxx+vec3(1.0,2.0/3.0,1.0/3.0))*6.0-3.0); return c.z*mix(vec3(1.0),clamp(p-1.0,0.0,1.0),c.y); }
+float band(float h,float ctr,float w){ return smoothstep(w,0.0,abs(fract(h-ctr+0.5)-0.5)); }
+// per-shot dice: x exposure (stops), y warm/cool drift, z light-leak strength, w leak position
+uniform vec4 u_roll;
+// per-shot dice: x green/magenta drift, y extra vignette, z grain seed
+uniform vec3 u_roll2;
+vec3 gold(vec3 c,vec2 uv){
+  // lens + emulsion: a touch softer than a phone sensor
+  vec2 px = 1.0/u_res;
+  vec3 b = (tex(uv+px)+tex(uv-px)+tex(uv+vec2(px.x,-px.y))+tex(uv+vec2(-px.x,px.y)))*0.25;
+  c = mix(c,b,0.5);
+  // halation: light scatters back through the base, red-orange rim around bright sources
+  vec3 h = vec3(0.0);
+  for(int i=0;i<6;i++){
+    float a = float(i)*1.0472+0.5;
+    h += max(tex(uv+vec2(cos(a),sin(a))*0.0035*vec2(u_res.y/u_res.x,1.0))-0.78,0.0);
+  }
+  h /= 6.0;
+  // exposure + colour-balance drift of this frame (zero in the live preview)
+  c *= exp2(u_roll.x);
+  c *= vec3(1.0+u_roll.y, 1.0-u_roll2.x*0.6, 1.0-u_roll.y*1.3+u_roll2.x*0.3);
   c = clamp(c,0.0,1.0);
-  c = mix(c, c*c*(3.0-2.0*c), 0.4);
-  c = mix(vec3(0.05,0.035,0.02), vec3(0.985,0.955,0.87), c);
-  c = satur(c,1.2);
-  c += vec3(0.045,0.022,-0.03)*smoothstep(0.35,0.95,luma(c));
-  float b = clamp(c.b-max(c.r,c.g),0.0,1.0);
-  c.g += b*0.18;
-  c.r += clamp(c.r-c.g,0.0,1.0)*0.08;
+  // hue-selective: rich reds + yellows, skin protected, greens toward olive, skies toward cyan and deeper
+  vec3 v = rgb2hsv(c);
+  float wR=band(v.x,0.99,0.05), wO=band(v.x,0.07,0.04), wY=band(v.x,0.14,0.05),
+        wG=band(v.x,0.30,0.11), wC=band(v.x,0.50,0.07), wB=band(v.x,0.62,0.09), wM=band(v.x,0.86,0.09);
+  v.x = fract(v.x + 0.012*wR - 0.02*wG - 0.012*wC - 0.03*wB + 0.025*wM);
+  v.y = clamp(v.y*(1.0 + 0.30*wR + 0.06*wO + 0.32*wY - 0.10*wG + 0.04*wC + 0.18*wB - 0.20*wM), 0.0, 1.0);
+  v.z *= 1.0 - v.y*(0.16*wB + 0.06*wG + 0.04*wC) + 0.03*wY;
+  c = hsv2rgb(v);
+  // split balance: neutral-cool shadows, golden mids, creamy highlights
+  float l = luma(c);
+  c *= mix(vec3(0.99,1.0,1.015), vec3(1.09,1.02,0.84), smoothstep(0.08,0.7,l));
+  c = pow(c, vec3(0.9));   // negative film likes a little overexposure: open mids
+  // per-channel negative curve: red a bit harder, blue softer, gentle shoulder
+  c = clamp((c-0.42)*vec3(1.10,1.04,0.94)+0.42, 0.0, 1.0);
+  c = mix(c, c*c*(3.0-2.0*c), 0.3);
+  c = 1.0-(1.0-c)*(1.0-0.12*c);
+  c = mix(vec3(0.055,0.047,0.04), vec3(0.98,0.955,0.875), c);
+  c += h*vec3(1.0,0.38,0.12)*1.3;
+  // light leak: some frames catch a warm flare from the film edge
+  float e = u_roll.w < 0.5 ? uv.x : 1.0-uv.x;
+  float lk = u_roll.z*exp(-e*6.0)*(0.55+0.45*sin(uv.y*4.0+u_roll.w*40.0));
+  c = 1.0-(1.0-c)*(1.0-lk*vec3(1.0,0.5,0.16));
   return c;
+}
+// organic grain: smoothed clumps in two sizes, mostly luminance with a little colour, strongest in the mids/shadows
+float vnoise(vec2 p){
+  vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
+  return mix(mix(hash(i),hash(i+vec2(1.0,0.0)),f.x), mix(hash(i+vec2(0.0,1.0)),hash(i+vec2(1.0,1.0)),f.x), f.y);
+}
+vec3 filmGrain(vec2 px,float size,float l){
+  float t = mod(floor(u_time*24.0),61.0) + u_roll2.z;
+  vec2 p = px/size + vec2(t*37.1, t*11.7);
+  float n = (vnoise(p)-0.5)*1.6 + (vnoise(p*2.3+17.0)-0.5)*1.1 + (hash(px+t)-0.5)*0.35;
+  vec3 ch = vec3(vnoise(p*1.4+3.0), vnoise(p*1.4+41.0), vnoise(p*1.4+83.0))-0.5;
+  float w = smoothstep(0.0,0.18,l)*(1.0-0.75*smoothstep(0.45,1.0,l));
+  return (vec3(n) + ch*0.45)*w;
 }
 
 void main(){
@@ -215,9 +270,11 @@ void main(){
   else if(u_look==1){ c=video(src,uv); gk=0.03; gs=1.0; vk=0.06; }
   else if(u_look==2){ c=cinema(src,uv); gk=0.055; gs=1.4; vk=0.3; }
   else if(u_look==3){ c=mono(src); gk=0.10; gs=1.8; vk=0.5; }
-  else { c=gold(src); gk=0.045; gs=1.3; vk=0.2; }
+  else { c=gold(src,uv); gk=0.05; gs=1.25; vk=0.22+u_roll2.y; }
   float l = luma(c);
-  c += grain(gl_FragCoord.xy, gs*max(1.0,u_res.y/1000.0))*gk*u_grain*(0.35+0.65*(1.0-abs(l*2.0-1.0)));
+  float gsz = gs*max(1.0,u_res.y/1000.0);
+  if(u_look==4) c += filmGrain(gl_FragCoord.xy, gsz, l)*gk*u_grain;
+  else c += grain(gl_FragCoord.xy, gsz)*gk*u_grain*(0.35+0.65*(1.0-abs(l*2.0-1.0)));
   c *= vign(uv,vk);
   gl_FragColor = vec4(clamp(mix(src,c,u_amt),0.0,1.0),1.0);
 }`;
@@ -231,7 +288,15 @@ const S = {
   look: Math.min(LOOKS.length-1, Math.max(0, +(new URLSearchParams(location.search).get('look') ?? store.get('cg.look') ?? 2) || 0)),
   amt: 1, grain: +(store.get('cg.grain') ?? 100)/100, fmt: store.get('cg.fmt')==='ip' ? 'ip' : 'film', guides: store.get('cg.guides') !== '0', facing: 'environment',
   src: 'cam', img: null, imgDirty: false, stream: null, shots: [],
+  roll: [0,0,0,0, 0,0,0],   // per-shot film dice, zero for the live preview
 };
+// like a real roll: each frame lands a little over/under, drifts warm/cool or green/magenta, sometimes catches a leak
+const NEUTRAL = [0,0,0,0, 0,0,0];
+function rollDice(){
+  const n = () => (Math.random()+Math.random()+Math.random()-1.5)/1.5;   // soft bell in -1..1
+  return [n()*0.3, n()*0.035, Math.random()<0.18 ? 0.15+Math.random()*0.4 : 0, Math.random(),
+          n()*0.025, Math.random()*0.12, Math.floor(Math.random()*997)];
+}
 
 /* ---------- WebGL ---------- */
 const gl = cv.getContext('webgl', {preserveDrawingBuffer:true, antialias:false, premultipliedAlpha:false});
@@ -243,7 +308,7 @@ gl.linkProgram(prog); gl.useProgram(prog);
 gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
 const ap = gl.getAttribLocation(prog,'p'); gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
-const U = {}; ['u_off','u_scale','u_res','u_time','u_amt','u_mirror','u_look','u_grain'].forEach(n => U[n]=gl.getUniformLocation(prog,n));
+const U = {}; ['u_off','u_scale','u_res','u_time','u_amt','u_mirror','u_look','u_grain','u_roll','u_roll2'].forEach(n => U[n]=gl.getUniformLocation(prog,n));
 gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
 gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 [[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]]
@@ -273,6 +338,7 @@ function draw(t){
   gl.uniform2fv(U.u_off,g.off); gl.uniform2fv(U.u_scale,g.scale); gl.uniform2f(U.u_res,cv.width,cv.height);
   gl.uniform1f(U.u_time,(t||performance.now())/1000); gl.uniform1f(U.u_amt,S.amt); gl.uniform1f(U.u_grain,S.grain);
   gl.uniform1f(U.u_mirror, S.src==='cam' && S.facing==='user' ? 1 : 0); gl.uniform1i(U.u_look,S.look);
+  gl.uniform4fv(U.u_roll, S.roll.slice(0,4)); gl.uniform3fv(U.u_roll2, S.roll.slice(4));
   gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
   return true;
 }
@@ -367,7 +433,9 @@ $('#file').onchange = e => { const f = e.target.files[0]; if(f) loadImage(URL.cr
 /* ---------- capture + save ---------- */
 function stamp(){ const d=new Date(), p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`; }
 $('#shutter').onclick = () => {
-  if(!draw()) return;
+  if(S.look===4) S.roll = rollDice();
+  const ok = draw(); S.roll = NEUTRAL;
+  if(!ok) return;
   $('#flash').classList.remove('on'); void $('#flash').offsetWidth; $('#flash').classList.add('on');
   const name = `grafsika-${LOOKS[S.look].name.toLowerCase()}-${stamp()}.jpg`;
   cv.toBlob(b => {
