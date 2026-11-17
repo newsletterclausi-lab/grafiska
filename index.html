@@ -48,7 +48,7 @@ video{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
 /* bottom controls */
 #ctl{position:fixed;left:0;right:0;bottom:0;padding:0 calc(var(--sr) + 14px) calc(var(--sb) + 14px) calc(var(--sl) + 14px);
   display:flex;flex-direction:column;gap:12px}
-#looks{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+#looks{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
 .look{border:1px solid var(--line);border-radius:12px;padding:9px 2px 8px;min-width:0;text-align:center;transition:border-color .15s,background .15s}
 .look b{display:block;font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis}
 .look span{display:block;font-size:10px;color:var(--dim);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -81,7 +81,6 @@ video{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
   #ctl{left:auto;top:0;width:calc(var(--sr) + 172px);padding:calc(var(--st) + 10px) calc(var(--sr) + 12px) calc(var(--sb) + 10px) 6px;
     justify-content:center;gap:10px}
   #looks{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .look:last-child{grid-column:span 2}
   .look{padding:7px 4px 6px}
   #hint{display:none}
   #thumb,#imp{width:42px;height:42px}#shutter{width:64px;height:64px}#shutter::after{width:50px;height:50px}
@@ -131,6 +130,8 @@ const LOOKS = [
   {name:'Cinema',   sub:'teal & glow',     ratio:2.39, label:'2.39:1', guide:'thirds', c:'#e8b04a'},
   {name:'Mono',     sub:'b/w grain',       ratio:2.35, label:'2.35:1', guide:'thirds', c:'#d9d9d9'},
   {name:'Gold',     sub:'warm film',       ratio:1.5,  label:'3:2',    guide:'thirds', c:'#f5c542'},
+  // instant print: square image (inner) inside the white frame (88×107 mm, image 79×79 mm)
+  {name:'Instant',  sub:'flash & frame',   ratio:88/107, inner:1, label:'SQ', guide:'thirds', c:'#ff7a59'},
 ];
 const MAX_SIDE = 3000;
 
@@ -139,7 +140,7 @@ precision highp float;
 varying vec2 v_uv;
 uniform sampler2D u_tex;
 uniform vec2 u_off, u_scale, u_res;
-uniform float u_time, u_amt, u_mirror, u_grain;
+uniform float u_time, u_amt, u_mirror, u_grain, u_frame;
 uniform int u_look;
 
 vec3 tex(vec2 uv){ uv = clamp(uv,0.0,1.0); uv.x = mix(uv.x,1.0-uv.x,u_mirror); return texture2D(u_tex,u_off+uv*u_scale).rgb; }
@@ -262,21 +263,64 @@ vec3 filmGrain(vec2 px,float size,float l){
   return (vec3(n) + ch*0.45)*w;
 }
 
+// Instant: on-camera flash at night. Hot centre, fast fall-off into the dark,
+// cheap soft lens, milky blue-green blacks, creamy blown highlights, uneven chemistry.
+vec3 instant(vec3 c,vec2 uv){
+  vec2 px = 1.6/u_res;
+  vec3 b = (tex(uv+px)+tex(uv-px)+tex(uv+vec2(px.x,-px.y))+tex(uv+vec2(-px.x,px.y)))*0.25;
+  c = mix(c,b,0.6);
+  vec3 h = vec3(0.0);
+  for(int i=0;i<6;i++){
+    float a = float(i)*1.0472;
+    h += max(tex(uv+vec2(cos(a),sin(a))*0.007)-0.68,0.0);
+  }
+  h /= 6.0;
+  // flash: subject in front pops, the room behind drops away
+  float d = length(uv-vec2(0.5,0.55));
+  c *= mix(1.22, 0.5, smoothstep(0.08,0.72,d)) * exp2(u_roll.x);
+  c *= vec3(1.0+u_roll.y, 1.0-u_roll2.x*0.6, 1.0-u_roll.y*1.3+u_roll2.x*0.3);
+  c = clamp(c,0.0,1.0);
+  float l = luma(c);
+  c = satur(c,0.8);
+  c *= mix(vec3(0.92,0.99,1.05), vec3(1.07,1.0,0.88), smoothstep(0.12,0.8,l));
+  c = mix(c, c*c*(3.0-2.0*c), 0.45);
+  c = pow(c, vec3(0.9));
+  c = mix(vec3(0.10,0.115,0.125), vec3(0.975,0.945,0.86), c);
+  c += h*vec3(1.0,0.86,0.7);
+  // development blotch: some prints come out with a warm uneven patch
+  float bl = u_roll.z*smoothstep(0.35,0.8,vnoise(uv*2.5+u_roll.w*50.0));
+  c = mix(c, c*vec3(1.06,0.94,0.78)+vec3(0.05,0.025,0.0), bl);
+  return c;
+}
+
 void main(){
-  vec2 uv = v_uv;
+  vec2 uv = v_uv, fuv = uv;
+  bool framed = u_look==5 && u_frame>0.5;
+  if(framed) uv = (uv-vec2(4.5/88.0,21.5/107.0))/vec2(79.0/88.0,79.0/107.0);
   vec3 src = tex(uv), c;
   float gk, gs, vk;
   if(u_look==0){ c=pastel(src); gk=0.018; gs=1.0; vk=0.0; }
   else if(u_look==1){ c=video(src,uv); gk=0.03; gs=1.0; vk=0.06; }
   else if(u_look==2){ c=cinema(src,uv); gk=0.055; gs=1.4; vk=0.3; }
   else if(u_look==3){ c=mono(src); gk=0.10; gs=1.8; vk=0.5; }
-  else { c=gold(src,uv); gk=0.05; gs=1.25; vk=0.22+u_roll2.y; }
+  else if(u_look==4){ c=gold(src,uv); gk=0.05; gs=1.25; vk=0.22+u_roll2.y; }
+  else { c=instant(src,uv); gk=0.03; gs=1.1; vk=0.3+u_roll2.y; }
   float l = luma(c);
   float gsz = gs*max(1.0,u_res.y/1000.0);
-  if(u_look==4) c += filmGrain(gl_FragCoord.xy, gsz, l)*gk*u_grain;
+  if(u_look>=4) c += filmGrain(gl_FragCoord.xy, gsz, l)*gk*u_grain;
   else c += grain(gl_FragCoord.xy, gsz)*gk*u_grain*(0.35+0.65*(1.0-abs(l*2.0-1.0)));
   c *= vign(uv,vk);
-  gl_FragColor = vec4(clamp(mix(src,c,u_amt),0.0,1.0),1.0);
+  c = mix(src,c,u_amt);
+  if(framed){
+    // print edge: the image darkens where the chemistry thins out, then white paper with a faint texture
+    float e = min(min(uv.x,1.0-uv.x),min(uv.y,1.0-uv.y));
+    c *= mix(0.72,1.0,smoothstep(0.0,0.025,e));
+    if(e < 0.0){
+      vec2 q = fuv*u_res;
+      c = vec3(0.955,0.948,0.925) + (hash(floor(q/1.5))-0.5)*0.02 - 0.05*exp(e*60.0);
+    }
+  }
+  gl_FragColor = vec4(clamp(c,0.0,1.0),1.0);
 }`;
 const VERT = `attribute vec2 p; varying vec2 v_uv; void main(){ v_uv=p*0.5+0.5; gl_Position=vec4(p,0.0,1.0); }`;
 
@@ -308,7 +352,7 @@ gl.linkProgram(prog); gl.useProgram(prog);
 gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
 const ap = gl.getAttribLocation(prog,'p'); gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
-const U = {}; ['u_off','u_scale','u_res','u_time','u_amt','u_mirror','u_look','u_grain','u_roll','u_roll2'].forEach(n => U[n]=gl.getUniformLocation(prog,n));
+const U = {}; ['u_off','u_scale','u_res','u_time','u_amt','u_mirror','u_look','u_grain','u_roll','u_roll2','u_frame'].forEach(n => U[n]=gl.getUniformLocation(prog,n));
 gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
 gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 [[gl.TEXTURE_MIN_FILTER,gl.LINEAR],[gl.TEXTURE_MAG_FILTER,gl.LINEAR],[gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE],[gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE]]
@@ -322,10 +366,11 @@ function srcSize(){
 /* crop the source to the look's aspect (centre cut) and size the canvas buffer to that crop */
 function geometry(){
   const ss = srcSize(); if(!ss) return null;
-  const [sw,sh_] = ss, A = ratio();
-  let cw = sw, ch = sw/A; if(ch > sh_){ ch = sh_; cw = sh_*A; }
+  const [sw,sh_] = ss, A = ratio(), inner = framed() ? LOOKS[S.look].inner : A;
+  let cw = sw, ch = sw/inner; if(ch > sh_){ ch = sh_; cw = sh_*inner; }
   const k = Math.min(1, MAX_SIDE/Math.max(cw,ch));
-  const W = Math.round(cw*k), H = Math.round(ch*k);
+  // framed: the crop fills the 79 mm image window, the canvas also holds the paper border
+  const W = Math.round(framed() ? cw*k*88/79 : cw*k), H = Math.round(framed() ? W/A : ch*k);
   if(cv.width!==W || cv.height!==H){ cv.width=W; cv.height=H; }
   return {off:[(sw-cw)/2/sw, (sh_-ch)/2/sh_], scale:[cw/sw, ch/sh_]};
 }
@@ -338,6 +383,7 @@ function draw(t){
   gl.uniform2fv(U.u_off,g.off); gl.uniform2fv(U.u_scale,g.scale); gl.uniform2f(U.u_res,cv.width,cv.height);
   gl.uniform1f(U.u_time,(t||performance.now())/1000); gl.uniform1f(U.u_amt,S.amt); gl.uniform1f(U.u_grain,S.grain);
   gl.uniform1f(U.u_mirror, S.src==='cam' && S.facing==='user' ? 1 : 0); gl.uniform1i(U.u_look,S.look);
+  gl.uniform1f(U.u_frame, framed() ? 1 : 0);
   gl.uniform4fv(U.u_roll, S.roll.slice(0,4)); gl.uniform3fv(U.u_roll2, S.roll.slice(4));
   gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
   return true;
@@ -351,6 +397,7 @@ function ratio(){
   if(S.fmt==='ip'){ const ss = srcSize(); return ss && ss[0] < ss[1] ? 3/4 : 4/3; }
   return LOOKS[S.look].ratio;
 }
+function framed(){ return S.fmt==='film' && !!LOOKS[S.look].inner; }
 function layout(){
   const A = lastA = ratio(), bw = stage.clientWidth, bh = stage.clientHeight;
   let w = bw, h = bw/A; if(h > bh){ h = bh; w = bh*A; }
@@ -368,6 +415,9 @@ function setGuides(){
     ? '<line x1="50" y1="0" x2="50" y2="100"/><line x1="0" y1="50" x2="100" y2="50"/><rect x="38" y="34" width="24" height="32"/>'
     : '<line x1="33.33" y1="0" x2="33.33" y2="100"/><line x1="66.67" y1="0" x2="66.67" y2="100"/><line x1="0" y1="33.33" x2="100" y2="33.33"/><line x1="0" y1="66.67" x2="100" y2="66.67"/>';
   g.style.opacity = S.guides ? 1 : 0;
+  // framed print: guides only over the image window, not the paper
+  g.style.inset = framed() ? `${6.5/107*100}% ${4.5/88*100}% ${21.5/107*100}%` : '0';
+  g.style.width = g.style.height = framed() ? 'auto' : '100%';
   $('#bGuide').classList.toggle('off', !S.guides);
 }
 
@@ -392,7 +442,7 @@ frame.addEventListener('pointerup', e => { if(sx!==null && Math.abs(e.clientX-sx
 $('#amt').oninput = e => { S.amt = e.target.value/100; $('#amtv').textContent = e.target.value; };
 $('#grn').value = Math.round(S.grain*100); $('#grnv').textContent = $('#grn').value;
 $('#grn').oninput = e => { S.grain = e.target.value/100; $('#grnv').textContent = e.target.value; store.set('cg.grain', e.target.value); };
-$('#bFmt').onclick = () => { S.fmt = S.fmt==='film' ? 'ip' : 'film'; store.set('cg.fmt', S.fmt); layout(); };
+$('#bFmt').onclick = () => { S.fmt = S.fmt==='film' ? 'ip' : 'film'; store.set('cg.fmt', S.fmt); setGuides(); layout(); };
 $('#bGuide').onclick = () => { S.guides = !S.guides; store.set('cg.guides', S.guides?'1':'0'); setGuides(); };
 
 /* ---------- camera ---------- */
@@ -433,7 +483,7 @@ $('#file').onchange = e => { const f = e.target.files[0]; if(f) loadImage(URL.cr
 /* ---------- capture + save ---------- */
 function stamp(){ const d=new Date(), p=n=>String(n).padStart(2,'0'); return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`; }
 $('#shutter').onclick = () => {
-  if(S.look===4) S.roll = rollDice();
+  if(S.look>=4) S.roll = rollDice();
   const ok = draw(); S.roll = NEUTRAL;
   if(!ok) return;
   $('#flash').classList.remove('on'); void $('#flash').offsetWidth; $('#flash').classList.add('on');
